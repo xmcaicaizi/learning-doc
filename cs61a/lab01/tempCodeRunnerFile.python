@@ -1,0 +1,14 @@
+for n in [8, 88, 2882, 880088, 12345, 80808080]:
+    cnt = 0
+    temp = str(n)
+    for letter in temp:
+        if letter == '8':
+            cnt = cnt + 1
+            if cnt == 2:
+                print (True)
+                break
+        else:
+            cnt = 0
+    if (cnt!=2):
+        print (False)
+        
