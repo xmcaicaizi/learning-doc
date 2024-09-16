@@ -128,6 +128,10 @@ def check_city_abstraction():
     'Bucharest'
     >>> change_abstraction(False)
     """
+    
+
+
+
 
 # Treat all the following code as being behind an abstraction layer,
 # you shouldn't need to look at it.
