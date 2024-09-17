@@ -7,6 +7,7 @@ class Transaction:
     def changed(self):
         """Return whether the transaction resulted in a changed balance."""
         "*** YOUR CODE HERE ***"
+        return self.before != self.after
 
     def report(self):
         """Return a string describing the transaction.
@@ -19,8 +20,15 @@ class Transaction:
         '5: no change'
         """
         msg = 'no change'
+        # if funds changed
         if self.changed():
             "*** YOUR CODE HERE ***"
+            if self.after < self.before:
+                verb = 'decreased'
+            else:
+                verb = 'increased'
+            msg = verb + ' ' + str(self.before) + '->' + str(self.after)
+        # with no changed
         return str(self.id) + ': ' + msg
 
 class Account:
@@ -63,15 +71,21 @@ class Account:
     """
 
     # *** YOU NEED TO MAKE CHANGES IN SEVERAL PLACES IN THIS CLASS ***
-
     def __init__(self, account_holder):
         self.balance = 0
         self.holder = account_holder
+        self.transactions = []      #日志
+
+    def next_id(self):
+        return len(self.transactions)    
 
     def deposit(self, amount):
         """Increase the account balance by amount, add the deposit
         to the transaction history, and return the new balance.
         """
+        # 添加记录
+        self.transactions.append(Transaction(self.next_id(), self.balance, self.balance + amount))
+
         self.balance = self.balance + amount
         return self.balance
 
@@ -80,7 +94,13 @@ class Account:
         to the transaction history, and return the new balance.
         """
         if amount > self.balance:
+            #日志
+            self.transactions.append(Transaction(self.next_id(), self.balance, self.balance))
+
             return 'Insufficient funds'
+        
+        #日志
+        self.transactions.append(Transaction(self.next_id(), self.balance, self.balance - amount))
         self.balance = self.balance - amount
         return self.balance
 
@@ -108,11 +128,11 @@ class Server:
 
     def send(self, email):
         """Append the email to the inbox of the client it is addressed to."""
-        ____.inbox.append(email)
+        self.clients[email.recipient_name].inbox.append(email)
 
     def register_client(self, client):
         """Add a client to the dictionary of clients."""
-        ____[____] = ____
+        self.clients[client.name] = client
 
 class Client:
     """A client has a server, a name (str), and an inbox (list).
@@ -135,11 +155,11 @@ class Client:
         self.inbox = []
         self.server = server
         self.name = name
-        server.register_client(____)
+        server.register_client(self)
 
     def compose(self, message, recipient_name):
         """Send an email with the given message to the recipient."""
-        email = Email(message, ____, ____)
+        email = Email(message, self, recipient_name)
         self.server.send(email)
 
 
@@ -176,7 +196,17 @@ def make_change(amount, coins):
     rest = remove_one(coins, smallest)
     if amount < smallest:
         return None
-    "*** YOUR CODE HERE ***"
+    # "*** YOUR CODE HERE ***"
+    elif amount == smallest:
+        return [smallest]
+    else:
+
+        result = make_change(amount - smallest, rest)
+        if result:    
+            return [smallest] + result
+        else:
+            return make_change(amount, rest)
+
 
 def remove_one(coins, coin):
     """Remove one coin from a dictionary of coins. Return a new dictionary,
@@ -272,4 +302,25 @@ class ChangeMachine:
     def change(self, coin):
         """Return change for coin, removing the result from self.coins."""
         "*** YOUR CODE HERE ***"
+        # 存硬币
+        # self.coins[coin] = 1 + self.coins[coin]   v1.0
 
+        # v1.1
+        # if coin in self.coins:
+        #     self.coins[coin] += 1
+        # else:
+        #     self.coins[coin] = 1
+
+        # answer
+
+        self.coins[coin] = 1 + self.coins.get(coin, 0)
+
+        # calculate change result
+        result = make_change(coin, self.coins)
+
+        # 取硬币
+        for c in result:
+            self.coins = remove_one(self.coins, c)
+
+        # 返回结果
+        return result
