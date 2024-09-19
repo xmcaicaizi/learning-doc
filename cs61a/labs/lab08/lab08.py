@@ -13,6 +13,9 @@ def cumulative_mul(t):
     """
     "*** YOUR CODE HERE ***"
 
+    for b in t.branches:
+        cumulative_mul(b)
+        t.label *= b.label
 
 def prune_small(t, n):
     """Prune the tree mutatively, keeping only the n branches
@@ -31,11 +34,11 @@ def prune_small(t, n):
     >>> t3
     Tree(6, [Tree(1), Tree(3, [Tree(1), Tree(2)])])
     """
-    while ___________________________:
-        largest = max(_______________, key=____________________)
-        _________________________
-    for __ in _____________:
-        ___________________
+    while len(t.branches) > n:
+        largest = max(t.branches , key = lambda x: x.label)
+        t.branches.remove(largest)
+    for b in t.branches:
+        prune_small(b, n)
 
 
 def delete(t, x):
